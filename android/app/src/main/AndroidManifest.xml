@@ -3,6 +3,10 @@
 
     <!-- マイク入力(コード解析)に必須 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- WebViewのgetUserMedia(ChromiumのWebRTC音声キャプチャ)はRECORD_AUDIOに加えて
+         これも要求する。無いと「No audio device available」→ NotReadableError になる。
+         通常権限なのでインストール時に自動付与される(ダイアログは出ない)。 -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- 127.0.0.1で自前配信するローカルサーバーへWebViewから接続するために必要
          (ループバック通信でもAndroidのソケットAPIはINTERNET権限を要求する) -->
     <uses-permission android:name="android.permission.INTERNET" />

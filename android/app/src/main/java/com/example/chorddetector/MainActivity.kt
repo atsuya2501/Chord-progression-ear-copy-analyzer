@@ -3,6 +3,8 @@ package com.example.chorddetector
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
+import android.webkit.ConsoleMessage
 import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -60,10 +62,22 @@ class MainActivity : ComponentActivity() {
         webView = WebView(this)
         setContentView(webView)
 
+        // WebView内のJSコンソールをlogcatへ流し、chrome://inspectでのデバッグも許可する
+        // (getUserMedia等が失敗したときの実際のエラーを外から確認できるようにする)
+        WebView.setWebContentsDebuggingEnabled(true)
+
         webView.settings.javaScriptEnabled = true
         webView.settings.mediaPlaybackRequiresUserGesture = false
 
         webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(msg: ConsoleMessage): Boolean {
+                Log.d(
+                    "ChordDetectorWeb",
+                    "${msg.messageLevel()} ${msg.message()} @${msg.sourceId()}:${msg.lineNumber()}",
+                )
+                return true
+            }
+
             override fun onPermissionRequest(request: PermissionRequest) {
                 val wantsAudio = request.resources.any {
                     it == PermissionRequest.RESOURCE_AUDIO_CAPTURE

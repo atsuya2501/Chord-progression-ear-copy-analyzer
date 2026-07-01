@@ -74,7 +74,9 @@ async function start() {
     el.status.textContent = 'マイク許可を待っています...';
     await engine.startMic();
   } catch (err) {
-    el.status.textContent = 'マイクを開始できませんでした: ' + err.message;
+    el.status.textContent = 'マイクを開始できませんでした: ' + err.name + ': ' + err.message;
+    // WebViewのlogcat(ChordDetectorWeb)にも詳細を残す
+    console.error('startMic failed:', err && (err.name + ' / ' + err.message), err);
     return;
   }
   running = true;
@@ -248,4 +250,10 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
   el.status.textContent =
     'この環境ではマイクが使えません(httpsまたはlocalhostで開いてください)';
   el.toggleBtn.disabled = true;
+  console.error(
+    'mediaDevices unavailable:',
+    'isSecureContext=', window.isSecureContext,
+    'origin=', location.origin,
+    'hasMediaDevices=', !!navigator.mediaDevices,
+  );
 }
