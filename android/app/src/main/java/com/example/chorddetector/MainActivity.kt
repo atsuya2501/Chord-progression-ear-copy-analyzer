@@ -19,8 +19,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var webView: WebView
     private lateinit var server: LocalWebServer
 
-    // WebViewからのマイク権限リクエストは、OS側のランタイム権限が無い場合
-    // ここで許可ダイアログを出してから改めてWebView側へ許可を返す。
+    // WebViewからのマイク権限リクエストが来た時点でOS権限がまだ無い場合の保留分。
+    // (通常は起動時の先行リクエストで解決済みのはずだが、念のためのフォールバック)
     private var pendingPermissionRequest: PermissionRequest? = null
 
     private val micPermissionLauncher = registerForActivityResult(
@@ -36,8 +36,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun hasMicPermission() =
+        ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // OS側のマイク権限を、WebView上で録音開始が押される前に先に確保しておく。
+        // これをJS側のgetUserMedia呼び出し時(onPermissionRequest内)で初めて要求すると、
+        // システム権限ダイアログの割り込みでWebViewのページが一瞬非表示状態になり、
+        // Chromiumがそのタイミングでの取得を失敗として扱うことがある(そしてその失敗を
+        // ページのセッション内で記憶してしまい、権限を後から許可しても直らない)。
+        // 起動時点で解決しておけば、実際にgetUserMediaが呼ばれる瞬間には権限確定済みで
+        // ダイアログの割り込みが起きず、onPermissionRequestは同期的に許可できる。
+        if (!hasMicPermission()) {
+            micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
 
         server = LocalWebServer(applicationContext)
         server.start()
@@ -58,12 +73,10 @@ class MainActivity : ComponentActivity() {
                     request.deny()
                     return
                 }
-                if (ContextCompat.checkSelfPermission(
-                        this@MainActivity, Manifest.permission.RECORD_AUDIO
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
+                if (hasMicPermission()) {
                     request.grant(arrayOf(PermissionRequest.RESOURCE_AUDIO_CAPTURE))
                 } else {
+                    // 起動時の先行リクエストが拒否された等のフォールバック
                     pendingPermissionRequest = request
                     micPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                 }
