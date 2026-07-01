@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#11141a" />
+  <title>コード進行解析</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="status-group">
+        <div id="status" class="status">停止中</div>
+        <div id="tuningInfo" class="tuning-info"></div>
+      </div>
+      <div id="keyArea" class="key-area">
+        <span id="keyName" class="key-name">Key: —</span>
+        <span id="keyConfidence" class="key-confidence"></span>
+      </div>
+    </header>
+
+    <section class="current">
+      <div id="currentChord" class="current-chord">—</div>
+      <div id="chordConfidence" class="chord-confidence"></div>
+    </section>
+
+    <section class="chroma">
+      <div id="chromaBars" class="chroma-bars"></div>
+    </section>
+
+    <section class="history-section">
+      <div class="section-title">コード進行</div>
+      <div id="history" class="history"></div>
+    </section>
+
+    <footer class="controls">
+      <button id="toggleBtn" class="toggle-btn">録音開始</button>
+    </footer>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

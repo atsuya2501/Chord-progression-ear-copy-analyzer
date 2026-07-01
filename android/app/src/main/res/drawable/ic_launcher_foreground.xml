@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  アダプティブアイコンの前景。108x108のうち中央付近が安全領域。
+  クロマ/スペクトルバーをイメージした高さ違いの3本バー。
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 左バー(中くらいの高さ) -->
+    <path android:fillColor="#4EA1FF"
+        android:pathData="M32,50 h12 a4,4 0 0 1 4,4 v20 a4,4 0 0 1 -4,4 h-12 a4,4 0 0 1 -4,-4 v-20 a4,4 0 0 1 4,-4 z" />
+    <!-- 中央バー(一番高い) -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M48,30 h12 a4,4 0 0 1 4,4 v40 a4,4 0 0 1 -4,4 h-12 a4,4 0 0 1 -4,-4 v-40 a4,4 0 0 1 4,-4 z" />
+    <!-- 右バー(低め) -->
+    <path android:fillColor="#4EA1FF"
+        android:pathData="M64,58 h12 a4,4 0 0 1 4,4 v12 a4,4 0 0 1 -4,4 h-12 a4,4 0 0 1 -4,-4 v-12 a4,4 0 0 1 4,-4 z" />
+</vector>

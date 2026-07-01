@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      WebViewの中身を読み込むまでの一瞬(白画面フラッシュ)を防ぐため、
+      Web版と同じダーク背景を起動時テーマに設定している。
+    -->
+    <style name="Theme.ChordDetector" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="android:statusBarColor">@color/app_background</item>
+        <item name="android:navigationBarColor">@color/app_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

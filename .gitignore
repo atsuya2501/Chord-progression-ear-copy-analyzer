@@ -1,0 +1,13 @@
+# Android (android/)
+android/local.properties
+android/.gradle/
+android/.idea/
+android/**/build/
+android/*.iml
+android/**/*.iml
+android/captures/
+android/.cxx/
+
+# OS/エディタ
+.DS_Store
+Thumbs.db

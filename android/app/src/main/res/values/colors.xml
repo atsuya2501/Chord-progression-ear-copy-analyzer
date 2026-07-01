@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Web版(styles.css)の配色に合わせたダーク背景とアクセントブルー -->
+    <color name="app_background">#11141A</color>
+    <color name="ic_launcher_background">#11141A</color>
+    <color name="accent_blue">#4EA1FF</color>
+</resources>

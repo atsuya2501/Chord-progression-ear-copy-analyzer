@@ -1,0 +1,203 @@
+:root {
+  --bg: #11141a;
+  --panel: #1b2029;
+  --panel-2: #232a36;
+  --text: #eef2f8;
+  --muted: #8b95a7;
+  --accent: #4ea1ff;
+  --accent-2: #ffca3a;
+  --current: #4ea1ff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+.app {
+  max-width: 540px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  gap: 12px;
+}
+
+/* ヘッダー: ステータス + キー */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 4px 10px;
+  background: var(--panel);
+  border-radius: 999px;
+}
+.tuning-info {
+  font-size: 11px;
+  color: var(--muted);
+}
+.key-area {
+  text-align: right;
+}
+.key-name {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+.key-confidence {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* 現在のコード(大きく) */
+.current {
+  background: var(--panel);
+  border-radius: 18px;
+  padding: 28px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.current-chord {
+  font-size: clamp(56px, 22vw, 110px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--current);
+  transition: transform 90ms ease-out, text-shadow 90ms ease-out;
+}
+/* オンセット(ビート)検出時の一瞬のパルス */
+.current-chord.beat {
+  transform: scale(1.06);
+  text-shadow: 0 0 24px rgba(78, 161, 255, 0.6);
+}
+.chord-confidence {
+  font-size: 13px;
+  color: var(--muted);
+  min-height: 16px;
+}
+
+/* クロマ可視化 */
+.chroma {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 12px 10px 6px;
+}
+.chroma-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 90px;
+  gap: 4px;
+}
+.chroma-bar-wrap {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+}
+.chroma-bar {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to top, var(--accent), #7cc0ff);
+  border-radius: 3px 3px 0 0;
+  transition: height 80ms linear;
+  min-height: 1px;
+}
+.chroma-label {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* コード進行履歴 */
+.history-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.section-title {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.history {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  min-height: 60px;
+  scroll-behavior: smooth;
+}
+.chord-chip {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: var(--panel-2);
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.chord-chip.current {
+  background: var(--accent);
+  color: #06101f;
+}
+.arrow {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* コントロール */
+.controls {
+  position: sticky;
+  bottom: 0;
+}
+.toggle-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 120ms;
+}
+.toggle-btn.active {
+  background: #e5484d;
+}
+.toggle-btn:disabled {
+  background: #3a4150;
+  color: var(--muted);
+  cursor: not-allowed;
+}

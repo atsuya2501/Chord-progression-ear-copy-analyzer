@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 9(API28)以降はデフォルトで平文HTTP通信が禁止される。
+  本アプリはgetUserMedia()を安全なコンテキストとして扱わせるため、
+  自前のローカルサーバー(127.0.0.1)をhttpで読み込む必要があるので、
+  その接続先だけをピンポイントで許可し、それ以外(外部の平文通信)は
+  許可しない最小限のスコープにしている。
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
