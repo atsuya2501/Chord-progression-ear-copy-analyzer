@@ -27,7 +27,10 @@ html, body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  /* Android(targetSdk 35+)はデフォルトでエッジトゥエッジ描画になり、
+     何もしないとステータスバー(Wi-Fi/バッテリー等)の裏まで内容が伸びて
+     隠れてしまうため、上下ともセーフエリア分を確保する。 */
+  padding: calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom));
   gap: 12px;
 }
 
@@ -132,13 +135,13 @@ html, body {
   color: var(--muted);
 }
 
-/* コード進行履歴 */
+/* コード進行履歴
+   (flex:1で画面全体に伸ばすと、中身のボックス自体は最小高さのままなので
+   ボタンとの間に大きな空白ができてしまう。中身の分だけ確保するようにする) */
 .history-section {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 0;
 }
 .section-title {
   font-size: 12px;
