@@ -11,6 +11,8 @@
 // 使えない)でグローバルなオフセットを1つ推定する。Essentia/HPCP等の
 // MIR(音楽情報検索)ツールでも使われる標準的な手法。
 
+import { extractPeaks } from './chroma.js';
+
 const A4 = 440;
 const LOG2 = Math.log(2);
 
@@ -36,26 +38,22 @@ export class TuningEstimator {
    * @param {number} fftSize
    */
   process(freqData, sampleRate, fftSize) {
-    const binWidth = sampleRate / fftSize;
+    // ビン中心の周波数をそのまま使うと量子化誤差(440Hz付近でビン幅約5.9Hz
+    // ≒±23セント)が乗るため、放物線補間済みの局所ピークを使って精度を出す。
+    const peaks = extractPeaks(
+      freqData, sampleRate, fftSize, this.minFreq, this.maxFreq, this.dbFloor,
+    );
 
-    for (let i = 1; i < freqData.length; i++) {
-      const freq = i * binWidth;
-      if (freq < this.minFreq || freq > this.maxFreq) continue;
-
-      const db = freqData[i];
-      if (db < this.dbFloor || !isFinite(db)) continue;
-
-      const amp = Math.pow(10, db / 20);
-
+    for (const p of peaks) {
       // 最寄りの半音からのズレ(-0.5..0.5 半音)を、1半音=1周とみなして
       // 角度に変換し、振幅で重み付けしたsin/cosとして蓄積(循環統計)。
-      const midi = 69 + 12 * (Math.log(freq / A4) / LOG2);
+      const midi = 69 + 12 * (Math.log(p.freq / A4) / LOG2);
       const frac = midi - Math.round(midi);
       const theta = frac * 2 * Math.PI;
 
-      this.sumSin += amp * Math.sin(theta);
-      this.sumCos += amp * Math.cos(theta);
-      this.totalWeight += amp;
+      this.sumSin += p.amp * Math.sin(theta);
+      this.sumCos += p.amp * Math.cos(theta);
+      this.totalWeight += p.amp;
     }
   }
 
