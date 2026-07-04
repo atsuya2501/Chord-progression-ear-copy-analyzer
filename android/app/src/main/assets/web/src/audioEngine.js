@@ -6,18 +6,25 @@
 export class AudioEngine {
   /**
    * @param {object} opts
-   * @param {number} [opts.fftSize=8192]   FFTサイズ(2のべき乗)。大きいほど周波数分解能が上がる。
+   * @param {number} [opts.fftSize=8192]   コード判定用FFTサイズ(2のべき乗)。
+   * @param {number} [opts.bassFftSize=32768] ベース(ルート)用の高分解能FFTサイズ。
+   *        低音域(65Hz付近)ではビン幅が半音間隔より粗くなるため、ベース専用に
+   *        大きなFFTを別途持たせて分解能を確保する。時間窓は長くなる(約0.74秒)が
+   *        ベースは変化が遅いので許容範囲。
    * @param {number} [opts.smoothingTimeConstant=0.6] AnalyserNode内部のスムージング。
    */
   constructor(opts = {}) {
     this.fftSize = opts.fftSize ?? 8192;
+    this.bassFftSize = opts.bassFftSize ?? 32768;
     this.smoothingTimeConstant = opts.smoothingTimeConstant ?? 0.6;
 
     this.audioContext = null;
     this.analyser = null;
+    this.bassAnalyser = null;   // ベース(ルート)推定用の高分解能アナライザ
     this.sourceNode = null;     // 現在繋がっている入力ソース(MediaStreamSource等)
     this.mediaStream = null;    // マイクのMediaStream(停止時のトラック解放用)
     this.freqData = null;       // getFloatFrequencyData用バッファ
+    this.bassFreqData = null;   // ベース用バッファ
     this.running = false;
   }
 
@@ -26,10 +33,16 @@ export class AudioEngine {
     if (this.audioContext) return;
     const Ctx = window.AudioContext || window.webkitAudioContext;
     this.audioContext = new Ctx();
+
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = this.fftSize;
     this.analyser.smoothingTimeConstant = this.smoothingTimeConstant;
     this.freqData = new Float32Array(this.analyser.frequencyBinCount);
+
+    this.bassAnalyser = this.audioContext.createAnalyser();
+    this.bassAnalyser.fftSize = this.bassFftSize;
+    this.bassAnalyser.smoothingTimeConstant = this.smoothingTimeConstant;
+    this.bassFreqData = new Float32Array(this.bassAnalyser.frequencyBinCount);
   }
 
   /** マイク入力を開始する。 */
@@ -74,6 +87,7 @@ export class AudioEngine {
     this._disconnectSource();
     this.sourceNode = node;
     node.connect(this.analyser);
+    node.connect(this.bassAnalyser);
     if (alsoToDestination) {
       node.connect(this.audioContext.destination);
     }
@@ -91,6 +105,13 @@ export class AudioEngine {
     if (!this.analyser) return null;
     this.analyser.getFloatFrequencyData(this.freqData);
     return this.freqData;
+  }
+
+  /** ベース用の高分解能スペクトル(dB)を取得する。 */
+  getBassFrequencyData() {
+    if (!this.bassAnalyser) return null;
+    this.bassAnalyser.getFloatFrequencyData(this.bassFreqData);
+    return this.bassFreqData;
   }
 
   get sampleRate() {

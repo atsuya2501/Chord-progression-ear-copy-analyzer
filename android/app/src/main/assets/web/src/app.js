@@ -137,7 +137,11 @@ function analyze() {
   const rawChroma = computeChroma(freqData, engine.sampleRate, engine.fftSize, tuningOffset);
   const smoothChroma = chromaSeg.add(rawChroma);
 
-  const rawBass = computeBassChroma(freqData, engine.sampleRate, engine.fftSize, tuningOffset);
+  // ベースは低音の分解能を稼ぐため専用の高分解能FFTから抽出する
+  const bassFreqData = engine.getBassFrequencyData();
+  const rawBass = computeBassChroma(
+    bassFreqData, engine.sampleRate, engine.bassFftSize, tuningOffset,
+  );
   const smoothBass = bassSeg.add(rawBass);
 
   // キー推定用ヒストグラムに加算
