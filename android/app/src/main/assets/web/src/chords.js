@@ -98,9 +98,27 @@ function transitionBonus(t, prevRoot) {
   return TRANSITION_CLASS_BONUS[cls] ?? 0;
 }
 
+// 倍音プロファイル。実楽器の1音は倍音を含み、各倍音は下記のピッチクラスへ
+// 漏れる。テンプレートを純粋な三和音ではなく「実際に鳴らしたときに観測される
+// クロマ」に寄せることで、倍音混じりの入力とのマッチ精度を上げる。
+//   h=1: 基音(±0)          h=2: オクターブ(±0)
+//   h=3: 完全5度上(+7)      h=4: 2オクターブ(±0)
+//   h=5: 長3度上(+4)        h=6: 5度上(+7)
+// 重みは 1/h^2 の速い減衰。非構成音への漏れ(5倍音の長3度など)は小さく保たれる。
+// 生成: offset = round(12*log2(h)) % 12, weight = 1/h^2
+const HARMONIC_PROFILE = (() => {
+  const HMAX = 6;
+  const list = [];
+  for (let h = 1; h <= HMAX; h++) {
+    const offset = ((Math.round(12 * Math.log2(h)) % 12) + 12) % 12;
+    list.push({ offset, weight: 1 / (h * h) });
+  }
+  return list;
+})();
+
 /**
  * 全コード(12ルート × タイプ)のテンプレートを事前生成する。
- * 各テンプレートはL2正規化済みのクロマ(長さ12)。
+ * 各構成音に倍音プロファイルを重ねてからL2正規化する。
  */
 function buildTemplates() {
   const templates = [];
@@ -108,7 +126,11 @@ function buildTemplates() {
     for (const type of CHORD_TYPES) {
       const vec = new Float32Array(12);
       for (const iv of type.intervals) {
-        vec[(root + iv) % 12] = 1;
+        const notePc = (root + iv) % 12;
+        // 構成音そのものではなく、その音の倍音系列を加算する
+        for (const h of HARMONIC_PROFILE) {
+          vec[(notePc + h.offset) % 12] += h.weight;
+        }
       }
       templates.push({
         name: PITCH_CLASS_NAMES[root] + type.suffix,
